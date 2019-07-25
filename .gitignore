@@ -1,5 +1,7 @@
 .DS_Store
 
+ext_libs/
+
 
 # FROM --------------- github/gitignore Global/JetBrains.gitignore
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
