@@ -2,28 +2,28 @@ package com.mojo.ioaccess;
 
 
 
-import java.util.concurrent.TimeUnit;
+import java.util.Arrays;
+import java.util.logging.Logger;
 
 import com.kuka.connectivity.fastRobotInterface.clientSDK.clientLBR.LBRClient;
 
+enum CMD_MODES {
+    JOINT_POSITION,
+    JOINT_TORQUE
+}
 /**
  * Example client for Fieldbus access.
  */
 public class IOAccessClient extends LBRClient
 {
-    private long startTime;
-    private static final double ANALOG_MAX = 1;
-    private static final double ANALOG_MIN = 0;
-    private static final long DIGITAL_MAX = 60;
-    private static final long DIGITAL_MIN = 0;
-
-    private static final double STEP = 0.1;
-
-    private static boolean ioPrev = false;
+    private static CMD_MODES CMD_MODE = CMD_MODES.JOINT_POSITION;
+    private static double[] CMD_POSITIONS = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    private static double[] CMD_TORQUE = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
     /**
      * Public methods for getting data
      * @return
+     * maybe return something when stuff is set
      */
     public boolean getTrueBool() {
         return true;
@@ -61,13 +61,33 @@ public class IOAccessClient extends LBRClient
         return getRobotState().getExternalTorque();
     }
 
+
+    public void setCommandedJointPosition(double[] positions) {
+        if (CMD_POSITIONS != positions){
+            Logger.getAnonymousLogger().info("new joint position command: \n"
+                    + "old: " + Arrays.toString(CMD_POSITIONS) + "\n"
+                    + "new: " + Arrays.toString(positions));
+        }
+        CMD_POSITIONS = positions;
+    }
+
+    public void setCommandedJointTorque(double[] torques) {
+        if (CMD_TORQUE != torques){
+            Logger.getAnonymousLogger().info("new joint torque command: \n"
+                    + "old: " + Arrays.toString(CMD_TORQUE) + "\n"
+                    + "new: " + Arrays.toString(torques));
+        }
+        CMD_TORQUE = torques;
+    }
+
     /**
      * end
      */
 
-    public IOAccessClient()
+    IOAccessClient()
     {
-        startTime = System.nanoTime();
+        Logger.getAnonymousLogger().info("IOAccessClient initialized: \n"
+                + "joint position command: " + Arrays.toString(CMD_POSITIONS));
     }
 
     @Override
@@ -87,83 +107,21 @@ public class IOAccessClient extends LBRClient
     }
 
     @Override
-    public void monitor()
-    {
-        getAndSetExample();
-    }
-
-    @Override
-    public void waitForCommand()
-    {
-        getAndSetExample();
-    }
-
-    @Override
     public void command()
     {
-        getAndSetExample();
-    }
+        switch (CMD_MODE) {
+            case JOINT_POSITION:
+                getRobotCommand().setJointPosition(CMD_POSITIONS);
+                break;
 
-    private void getAndSetExample()
-    {
-        // LIMIT
-        double tempAnalog = getRobotState().getAnalogIOValue("FRI.Out_Analog_Deci_Seconds");
-        if (tempAnalog > ANALOG_MAX)
-        {
-            getRobotCommand().setAnalogIOValue("FRI.Out_Analog_Deci_Seconds", ANALOG_MAX);
-        }
-        else if (tempAnalog < ANALOG_MIN)
-        {
-            getRobotCommand().setAnalogIOValue("FRI.Out_Analog_Deci_Seconds", ANALOG_MIN);
-        }
+            case JOINT_TORQUE:
+                getRobotCommand().setTorque(CMD_TORQUE);
+                break;
 
-        long tempDigital = getRobotState().getDigitalIOValue("FRI.Out_Integer_Seconds");
-        if (tempDigital > DIGITAL_MAX)
-        {
-            getRobotCommand().setDigitalIOValue("FRI.Out_Integer_Seconds", DIGITAL_MAX);
-        }
-        else if (tempDigital < DIGITAL_MIN)
-        {
-            getRobotCommand().setDigitalIOValue("FRI.Out_Integer_Seconds", DIGITAL_MIN);
-        }
-
-        boolean isEnabled = getRobotState().getBooleanIOValue("FRI.In_Bool_Clock_Enabled");
-
-        boolean ioNow = getRobotState().getBooleanIOValue("MediaFlange.InputX3Pin10");
-        if (ioNow != ioPrev){
-            System.out.println("gripper change..");
-        }
-        ioPrev = ioNow;
-
-        if (isEnabled)
-        {
-            long now = System.nanoTime();
-            long difference = now - startTime;
-            int milliSecDiff = (int) (TimeUnit.NANOSECONDS.toMillis(difference));
-            if (milliSecDiff >= 100)
-            {
-                double analogValue = getRobotState().getAnalogIOValue("FRI.Out_Analog_Deci_Seconds");
-                analogValue = analogValue + STEP;
-                if (analogValue < ANALOG_MAX)
-                {
-                    getRobotCommand().setAnalogIOValue("FRI.Out_Analog_Deci_Seconds", analogValue);
-                }
-                else
-                {
-                    getRobotCommand().setAnalogIOValue("FRI.Out_Analog_Deci_Seconds", ANALOG_MIN);
-
-                    long digitalValue = getRobotState().getDigitalIOValue("FRI.Out_Integer_Seconds") + 1;
-                    if (digitalValue < DIGITAL_MAX)
-                    {
-                        getRobotCommand().setDigitalIOValue("FRI.Out_Integer_Seconds", digitalValue);
-                    }
-                    else
-                    {
-                        getRobotCommand().setDigitalIOValue("FRI.Out_Integer_Seconds", DIGITAL_MIN);
-                    }
-                }
-                startTime = now;
+            default: {
+                break;
             }
         }
     }
+
 }
