@@ -1,8 +1,8 @@
-package com.mojo.ioaccess;
+package ioaccess;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import py4j.GatewayServer;
-
-import java.util.logging.Logger;
 
 import com.kuka.connectivity.fastRobotInterface.clientSDK.base.ClientApplication;
 import com.kuka.connectivity.fastRobotInterface.clientSDK.connection.UdpConnection;
@@ -25,7 +25,9 @@ public class IOAccessApp
         // only for sonar
     }
 
-    private static final int DEFAULT_PORTID = 30200;
+    private static final int DEFAULT_PORT_ID = 30200;
+
+    private static final Logger blogger = LoggerFactory.getLogger(IOAccessApp.class);
 
     /**
      * Main method.
@@ -37,20 +39,19 @@ public class IOAccessApp
     {
         if (argv.length > 0 && "help".equals(argv[0]))
         {
-            Logger.getAnonymousLogger().info("\nKUKA Fieldbus access test application\n\n\tCommand line arguments:");
-            Logger.getAnonymousLogger().info("\t1) remote hostname (optional)");
-            Logger.getAnonymousLogger().info("\t2) port ID (optional)");
+            blogger.info("KUKA Fieldbus access test application. Command line arguments: 1) remote hostname (optional)" +
+                    " 2) port ID (optional)");
             return;
         }
 
+        blogger.info("Enter IOAccess Client Application.");
         IOAccessClient client = new IOAccessClient();
-        Logger.getAnonymousLogger().info("Enter IOAccess Client Application");
 
         GatewayServer server = new GatewayServer(client);
         server.start();
 
         String hostname = (argv.length >= 1) ? argv[0] : null;
-        int port = (argv.length >= 2) ? Integer.valueOf(argv[1]) : DEFAULT_PORTID;
+        int port = (argv.length >= 2) ? Integer.parseInt(argv[1]) : DEFAULT_PORT_ID;
 
         UdpConnection connection = new UdpConnection();
 
@@ -67,6 +68,6 @@ public class IOAccessApp
         app.disconnect();
         server.shutdown();
 
-        Logger.getAnonymousLogger().info("Exit IOAccess Client Application");
+        blogger.info("Exit IOAccess Client Application");
     }
 }
