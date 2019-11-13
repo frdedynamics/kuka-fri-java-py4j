@@ -73,7 +73,23 @@ public class IOAccessClient extends LBRClient
         return getRobotState().getExternalTorque();
     }
 
+    public double[] getMeasurementsPacket(){
+        double[] retVal = new double[16];
+        retVal[0] = Double.valueOf(getRobotState().getTimeStampSec());
+        retVal[1] = Double.valueOf(getRobotState().getTimeStampNanoSec());
+        int joint_index = 0;
+        for (int i=2; i<9; i++){
+            retVal[i] = getRobotState().getMeasuredJointPosition()[joint_index];
+            joint_index = joint_index + 1;
+        }
+        joint_index = 0;
+        for (int i=9; i<16; i++){
+            retVal[i] = getRobotState().getMeasuredTorque()[joint_index];
+            joint_index = joint_index + 1;
+        }
 
+        return retVal;
+    }
     public void setCommandedJointPosition(double[] positions) {
         if (cmdPositions != positions){
             blogger.info("New joint position command. Old: {}, new: {}", cmdPositions, positions);
