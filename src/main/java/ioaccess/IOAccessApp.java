@@ -51,7 +51,7 @@ public class IOAccessApp
         GatewayServer server = new GatewayServer(client);
         server.start();
 
-        String hostname = (argv.length >= 1) ? argv[0] : null;
+        String hostname = (argv.length >= 1) ? argv[0] : "192.170.10.2";
         int port = (argv.length >= 2) ? Integer.parseInt(argv[1]) : DEFAULT_PORT_ID;
 
         UdpConnection connection = new UdpConnection();
