@@ -190,10 +190,6 @@ public class IOAccessClient extends LBRClient
                             direction);
                     measuredJointPositionLast = measuredJointPosition;
 
-
-                    cmdPositions = getRobotState().getCommandedJointPosition();
-                    cmdPositions[6] = measuredJointPosition[6] + 0.01;
-
                     getRobotCommand().setJointPosition(cmdPositions);
                     getRobotCommand().setTorque(cmdTorque);
                 }
