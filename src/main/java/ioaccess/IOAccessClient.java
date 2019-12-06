@@ -91,18 +91,22 @@ public class IOAccessClient extends LBRClient
         return retVal;
     }
     public void setCommandedJointPosition(double[] positions) {
+        /*
         if (cmdPositions != positions){
             blogger.info("New joint position command. Old: {}, new: {}", cmdPositions, positions);
 
         }
+         */
         cmdPositions = positions;
     }
 
     public void setCommandedJointTorque(double[] torques) {
+        /*
         if (cmdTorque != torques){
             blogger.info("New joint position command. Old: {}, new: {}", cmdTorque, torques);
 
         }
+         */
         cmdTorque = torques;
     }
 
