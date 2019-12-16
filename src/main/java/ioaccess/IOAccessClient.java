@@ -27,7 +27,7 @@ public class IOAccessClient extends LBRClient
     private static double secLast;
     private static double direction = -1.0;
     private static double[] measuredJointPositionLast;
-    private static CMD_MODES cmdMode = CMD_MODES.JOINT_TORQUE;
+    private static CMD_MODES cmdMode = CMD_MODES.JOINT_POSITION;
     private static double[] cmdPositions;
     private static double[] cmdTorque = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
@@ -74,7 +74,7 @@ public class IOAccessClient extends LBRClient
     }
 
     public double[] getMeasurementsPacket(){
-        double[] retVal = new double[16];
+        double[] retVal = new double[23];
         retVal[0] = Double.valueOf(getRobotState().getTimeStampSec());
         retVal[1] = Double.valueOf(getRobotState().getTimeStampNanoSec());
         int joint_index = 0;
@@ -85,6 +85,11 @@ public class IOAccessClient extends LBRClient
         joint_index = 0;
         for (int i=9; i<16; i++){
             retVal[i] = getRobotState().getMeasuredTorque()[joint_index];
+            joint_index = joint_index + 1;
+        }
+        joint_index = 0;
+        for (int i=16; i<23; i++){
+            retVal[i] = getRobotState().getExternalTorque()[joint_index];
             joint_index = joint_index + 1;
         }
 
